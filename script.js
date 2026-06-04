@@ -1,44 +1,62 @@
-let images = ["banner1.jpg", "banner2.jpg", "banner3.jpg","banner4.jpg"];
-let index = 0;
+let orderCount = 0;
 
-setInterval(() => {
-    index = (index + 1) % images.length;
-    document.getElementById("slide").src = images[index];
-}, 3000);
+    function addToOrders(button) {
+      const productCard = button.closest('.product-card');
+      const image = productCard.querySelector('img').src;
+      const name = productCard.querySelector('p').innerText;
+      const price = productCard.querySelector('h2').innerText;
 
+      orderCount++;
+      document.getElementById('order-count').innerText = orderCount;
+      document.getElementById('empty-message').style.display = 'none';
 
-function search(event){
-    event.preventDefault()
-    const product=document.getElementById("searchbar").value;
-    console.log("Searching for ",product)
-    alert("You searched for "+product)
-    if(product.toLowerCase()=="laptop"){
-        document.getElementsByClassName("title1")[0].scrollIntoView()
-    }else if(product.toLowerCase()=="phone"){
-        document.getElementsByClassName("title1")[2].scrollIntoView()
+      const orderColumn = document.createElement('div');
+      orderColumn.className = 'col-12 col-sm-6 col-lg-4 col-xl-3';
+
+      orderColumn.innerHTML = `
+        <div class="order-card">
+          <img src="${image}" alt="Ordered Product">
+          <p>${name}</p>
+          <h2>${price}</h2>
+          <button onclick="removeOrder(this)">Remove</button>
+        </div>
+      `;
+
+      document.getElementById('orders-container').appendChild(orderColumn);
+      document.getElementById('orders').scrollIntoView({ behavior: 'smooth' });
     }
-    else{
-        alert("Product not found")
-    }
-}
 
-function addToOrders(button) {
-    const productCard = button.parentElement;
-    const product_img=productCard.querySelector("img").src;
-    const productName = productCard.querySelector("p").innerText;
-    const productPrice = productCard.querySelector("h2").innerText;
-    const orderCard = document.createElement("div");
-    orderCard.classList.add("order-card");
-    orderCard.innerHTML = `
-        <img src="${product_img}">
-        <h3>${productName}</h3>
-        <p>Price: ₹${productPrice}</p>
-        <p>Status: Ordered ✅</p>
-    `;
-    document.getElementById("orders-container").appendChild(orderCard);
-    const totalOrders = document.querySelectorAll(".order-card").length;
-    document.getElementById("order-count").innerText = totalOrders;
-    if (ordersContainer.children.length > 1) {
-    emptyMessage.style.display = "none";
-}
-}
+    function removeOrder(button) {
+      button.closest('.col-12').remove();
+      orderCount--;
+      document.getElementById('order-count').innerText = orderCount;
+
+      if (orderCount === 0) {
+        document.getElementById('empty-message').style.display = 'block';
+      }
+    }
+
+    function search(event) {
+      event.preventDefault();
+      const searchValue = document.getElementById('searchbar').value.toLowerCase().trim();
+      const products = document.querySelectorAll('.product-card');
+      let found = false;
+
+      products.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.parentElement.style.display = 'block';
+
+        if (searchValue !== '' && !text.includes(searchValue)) {
+          card.parentElement.style.display = 'none';
+        } else if (searchValue !== '') {
+          found = true;
+        }
+      });
+
+      document.getElementById('product-page').scrollIntoView({ behavior: 'smooth' });
+
+      if (searchValue !== '' && !found) {
+        alert('No products found');
+        products.forEach(card => card.parentElement.style.display = 'block');
+      }
+    }
